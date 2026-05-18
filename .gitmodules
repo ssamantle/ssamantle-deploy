@@ -1,8 +1,8 @@
-[submodule "backend"]
-	path = backend
+[submodule "game-server"]
+	path = submodules/game-server
 	url = https://github.com/ssamantle/ssamantle-server
 	branch = main
-[submodule "frontend"]
-	path = frontend
+[submodule "web-client"]
+	path = submodules/web-client
 	url = https://github.com/ssamantle/ssamantle-web-client
 	branch = main
