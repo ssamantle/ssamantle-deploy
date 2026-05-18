@@ -1,64 +1,46 @@
 services:
-  backend:
-    image: ssamantle-server
+  web-client:
+    container_name: ssamantle-web-client
+    image: ssamantle-web-client:latest
     build:
-      context: backend
+      context: submodules/web-client
       dockerfile: Dockerfile
-    container_name: ssamantle-backend
-    ports:
-      - 44345:8000
+      args:
+        API_BASE_URL: http://localhost:8000
+    restart: unless-stopped
+    depends_on: [game-server]
+    ports: [80:80]
+
+  game-server:
+    container_name: ssamantle-game-server
+    image: ssamantle-game-server:latest
+    build:
+      context: submodules/game-server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on: [redis, postgres]
+    ports: [8000:8000]
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DATABASE_URL=postgresql://semantle:semantle@postgres:5432/semantle
-    depends_on:
-      redis:
-        condition: service_started
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-    volumes:
-      - volume-server:/app/data
-  frontend:
-    image: ssamantle-web-client
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-      args:
-        API_BASE_URL: http://localhost:44345
-    container_name: ssamantle-frontend
-    depends_on:
-      - backend
-    ports:
-      - 80:80
-    restart: unless-stopped
 
   postgres:
-    container_name: postgres
-    image: postgres:latest
-    ports: ["5432:5432"]
-    restart: unless-stopped
+    container_name: ssamantle-postgres
+    image: postgres:16
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U semantle"]
       interval: 5s
       timeout: 5s
       retries: 5
-    volumes: ["volume-postgres:/var/lib/postgres/data"]
+    ports: [5432:5432]
     environment:
       - POSTGRES_DB=semantle
       - POSTGRES_USER=semantle
       - POSTGRES_PASSWORD=semantle
 
   redis:
+    container_name: ssamantle-redis
     image: redis:latest
-    container_name: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - volume-redis:/data
-    command: [ "redis-server", "--appendonly", "yes" ]
-
-volumes:
-  volume-server:
-  volume-redis:
-  volume-postgres:
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: [6379:6379]
