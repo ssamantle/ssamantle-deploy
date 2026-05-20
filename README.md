@@ -12,17 +12,18 @@ Docker Compose로 백엔드, 프론트엔드, Redis를 함께 실행합니다.
 git submodule update --init
 ```
 
-도커 이미지를 빌드하고 서비스를 구성하여 배포합니다.
+`.env.sample` 을 복제하여 `.env` 파일을 생성한 후,
+아래의 명령어를 통해 도커 이미지를 빌드하고 서비스를 구성하여 배포합니다.
 
-```bash
+```
 docker compose up --build
 ```
 
 ### 2) 접속
 
 - 프론트엔드: http://localhost
-- API: http://localhost:44345
+- API: http://localhost:${GAME_SERVER_PORT}
 
 ### 3) 준비
 
-- 게임을 생성해야 합니다. `http://localhost:44345/docs`(백엔드 서버) 에 접속하여 `/api/v1/games`(게임 생성 API) 를 호출하여 게임을 설정합니다. (게임 준비에 약 20~30초 소요됩니다.)
+- 게임을 생성해야 합니다. `http://localhost:${GAME_SERVER_PORT}/docs`(백엔드 서버) 에 접속하여 `/api/v1/games`(게임 생성 API) 를 호출하여 게임을 설정합니다. (게임 준비에 약 20~30초 소요됩니다.)
