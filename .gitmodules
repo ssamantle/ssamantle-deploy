@@ -1,6 +1,6 @@
 [submodule "game-server"]
 	path = submodules/game-server
-	url = https://github.com/ssamantle/ssamantle-server
+	url = https://github.com/ssamantle/ssamantle-game-server-python
 	branch = main
 [submodule "web-client"]
 	path = submodules/web-client
