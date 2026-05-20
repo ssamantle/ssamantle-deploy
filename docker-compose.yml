@@ -30,6 +30,10 @@ services:
       watch:
         - action: rebuild
           path: .env
+        - action: rebuild
+          path: ./submodules/game-server/Dockerfile
+        - action: rebuild
+          path: ./submodules/game-server/pyproject.toml
         - action: sync+restart
           path: ./submodules/game-server/app
           target: /app/app
