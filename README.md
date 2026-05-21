@@ -20,9 +20,9 @@ docker compose up --build
 
 ### 2) 접속
 
-- 프론트엔드: http://localhost:8000
-- API: http://localhost:8080
+- 프론트엔드: http://localhost
+- API: http://localhost:44345
 
 ### 3) 준비
 
-- 게임을 생성해야 합니다. `http://localhost:8080/docs`(백엔드 서버) 에 접속하여 `/api/v1/games`(게임 생성 API) 를 호출하여 게임을 설정합니다. (게임 준비에 약 20~30초 소요됩니다.)
+- 게임을 생성해야 합니다. `http://localhost:44345/docs`(백엔드 서버) 에 접속하여 `/api/v1/games`(게임 생성 API) 를 호출하여 게임을 설정합니다. (게임 준비에 약 20~30초 소요됩니다.)
