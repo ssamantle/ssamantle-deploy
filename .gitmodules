@@ -1,0 +1,8 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/ssamantle/ssamantle-server
+	branch = main
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/ssamantle/ssamantle-web-client
+	branch = main
