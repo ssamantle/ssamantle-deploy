@@ -1,64 +1,78 @@
 services:
-  backend:
-    image: ssamantle-server
+  web_client:
+    container_name: ssamantle-web-client
+    image: ssamantle-web-client:latest
     build:
-      context: backend
+      context: submodules/web-client
       dockerfile: Dockerfile
-    container_name: ssamantle-backend
-    ports:
-      - 44345:8000
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - DATABASE_URL=postgresql://semantle:semantle@postgres:5432/semantle
+      args:
+        API_BASE_URL: "http://${GAME_SERVER_HOST}:${GAME_SERVER_PORT}"
+    develop:
+      watch:
+        - action: rebuild
+          path: .env
+        - action: sync+restart
+          path: ./submodules/web-client/src
+          target: /app/src
+    restart: unless-stopped
+    depends_on:
+      game_server:
+        condition: service_healthy
+    ports: ["80:80"]
+
+  game_server:
+    container_name: ssamantle-game-server
+    image: ssamantle-game-server:latest
+    build:
+      context: submodules/game-server
+      dockerfile: Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: .env
+        - action: rebuild
+          path: ./submodules/game-server/Dockerfile
+        - action: rebuild
+          path: ./submodules/game-server/pyproject.toml
+        - action: sync+restart
+          path: ./submodules/game-server/app
+          target: /app/app
+    restart: unless-stopped
     depends_on:
       redis:
         condition: service_started
       postgres:
         condition: service_healthy
-    restart: unless-stopped
-    volumes:
-      - volume-server:/app/data
-  frontend:
-    image: ssamantle-web-client
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-      args:
-        API_BASE_URL: http://localhost:44345
-    container_name: ssamantle-frontend
-    depends_on:
-      - backend
-    ports:
-      - 80:80
-    restart: unless-stopped
+    ports: ["${GAME_SERVER_PORT}:8000"]
+    volumes: ["ssamantle_game_server:/app/data"]
+    environment:
+      - DEBUG=${DEBUG}
+      - SECRET=${SECRET}
+      - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+  redis:
+    container_name: ssamantle-redis
+    image: redis:latest
+    ports: ["${REDIS_PORT}:6379"]
+    command: ["redis-server", "--appendonly", "yes"]
 
   postgres:
-    container_name: postgres
+    container_name: ssamantle-postgres
     image: postgres:latest
-    ports: ["5432:5432"]
+    ports: ["${DB_PORT}:5432"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U semantle"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
-    volumes: ["volume-postgres:/var/lib/postgres/data"]
+    volumes: ["ssamantle_postgres:/var/lib/postgres/data"]
     environment:
-      - POSTGRES_DB=semantle
-      - POSTGRES_USER=semantle
-      - POSTGRES_PASSWORD=semantle
-
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - volume-redis:/data
-    command: [ "redis-server", "--appendonly", "yes" ]
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
 
 volumes:
-  volume-server:
-  volume-redis:
-  volume-postgres:
+  ssamantle_game_server:
+  ssamantle_postgres:
