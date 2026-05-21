@@ -9,11 +9,12 @@ Docker Compose로 백엔드, 프론트엔드, Redis를 함께 실행합니다.
 백엔드, 프론트엔드의 개발 레포지토리로 부터 최신 버전 소스코드를 불러옵니다.
 
 ```bash
-git submodule update --init --remote
+git submodule update --init
 ```
 
 도커 이미지를 빌드하고 서비스를 구성하여 배포합니다.
-```
+
+```bash
 docker compose up --build
 ```
 
